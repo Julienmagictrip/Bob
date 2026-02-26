@@ -1,96 +1,63 @@
-# 🛠️ BOB.AI - Assistant de Maintenance Intelligent
+# 🛠️ BOB.AI - L'Assistant de Maintenance Intelligent
 
-BOB.AI est une application web progressive (PWA) conçue pour simplifier le diagnostic et la résolution des problèmes de maintenance dans les appartements (notamment pour la location courte durée). Elle combine une interface utilisateur intuitive avec la puissance de l'IA (Gemini) pour guider les utilisateurs vers une solution ou faciliter l'escalade vers un professionnel.
+> **Automatiser le diagnostic, simplifier l'intervention, valoriser l'expérience locative.**
+
+BOB.AI est une plateforme SaaS/PWA conçue pour révolutionner la gestion technique immobilière (Airbnb, Hôtels, Gestion locative). En plaçant l'IA générative au cœur de la détection de pannes, BOB.AI réduit les interventions inutiles et optimise la chaîne de valeur du dépannage.
+
+---
+
+## 🎯 Enjeux et Vision (The "Why")
+
+La maintenance immobilière souffre de trois frictions majeures que BOB.AI résout :
+1.  **Le bruit opérationnel** : 40% des demandes de maintenance sont résolvables par l'utilisateur (ex: disjoncteur sauté, bouton mal enclenché). BOB.AI agit comme un filtre intelligent.
+2.  **L'asymétrie d'information** : Les techniciens arrivent souvent sans avoir les bons outils car le problème a été mal décrit. L'expertise multimodale de BOB fournit un pré-diagnostic précis (Photo + Modèle).
+3.  **La preuve de dommage (AirCover)** : En cas de dégradation par le voyageur, BOB.AI collecte immédiatement les preuves (photos, horodatage) facilitant les demandes de remboursement auprès des assurances ou plateformes (Airbnb).
+
+---
+
+## 🧠 Logique du Projet (The "How")
+
+### 1. Le Moteur de Diagnostic (Wizard v2)
+Contrairement aux chatbots classiques basés sur des arbres de décision rigides, BOB.AI utilise un **flux itératif dynamique** piloté par Gemini 2.5 Flash.
+*   **Contexte-Aware** : L'IA reçoit l'historique complet, les spécifications de l'appareil et l'analyse visuelle de la photo.
+*   **JSON-Direct-Rendering** : L'IA ne "discute" pas seulement ; elle dicte l'interface. Si elle a besoin d'une info, elle renvoie un type `question` avec des boutons générés à la volée. Si elle a la solution, elle renvoie un type `diagnosis` avec des étapes illustrées.
+
+### 2. Écosystème Multi-Rôles
+Le projet n'est pas qu'un outil de chat, c'est un **ERP de maintenance léger** :
+*   **Locataire/Voyageur** : Accès instantané via QR Code (PWA), diagnostic guidé, sentiment d'accompagnement 24/7.
+*   **Conciergerie/Gestionnaire** : Dashboard centralisé, tri automatique par priorité, gestion financière (Devis/Factures).
+*   **Artisans/Techniciens** : Une "place de marché" interne où les professionnels reçoivent des missions qualifiées avec un dossier technique complet avant même de se déplacer.
+
+---
+
+## 🏗️ Stratégie de Conception et Développement
+
+### Choix de l'Architecture
+*   **React 19 & TypeScript** : Pour une robustesse maximale des types de données, cruciale lors de l'échange de JSON complexes avec l'IA.
+*   **Modèle "AI-first"** : Nous avons déplacé l'intelligence métier du code (hardcoded logic) vers le Prompt Engineering (`geminiService.ts`). Cela permet de supporter de nouvelles catégories d'appareils sans modifier une ligne de code UI.
+*   **Approche Multimodale** : Le support natif de la vision permet à l'IA d'identifier des pièces défectueuses ou de lire des codes d'erreur sur des affichages numériques, ce qu'un utilisateur ne sait pas toujours faire.
+
+### Sécurité et Performance
+*   **Optimisation des Tokens** : Utilisation de modèles "Flash" pour garantir une réponse en moins de 2 secondes, indispensable pour une expérience utilisateur fluide sur mobile.
+*   ** découplage IA/UI** : L'interface est conçue pour être "résiliente" (Graceful Degradation). Si l'IA échoue, le système bascule automatiquement sur un formulaire d'escalade standard.
 
 ---
 
 ## 🚀 Stack Technique
 
-*   **Framework** : React 19 (TypeScript)
-*   **Module Bundler** : Vite 6
-*   **Langage** : TypeScript 5.8
-*   **IA** : Google Generative AI (SDK `@google/genai`) - Modèle `gemini-2.5-flash`
-*   **Styles** : Tailwind CSS (Vanilla CSS pour les composants spécifiques)
-*   **Back-end** : Firebase (Configuré pour la persistance des données)
+*   **Frontend** : Vite + React 19 + TypeScript.
+*   **Design** : Tailwind CSS (Glassmorphism & Mobile-first).
+*   **Intelligence** : Google Generative AI SDK (Gemini 2.5 Flash).
+*   **Data/Backend** : Firebase (Scalabilité & Temps réel).
 
 ---
 
-## 🏗️ Architecture du Projet
+## 🛠️ Guide d'Installation Rapide
 
-Le projet est structuré de manière modulaire pour séparer la logique de rendu, les services de données et les définitions de types.
-
-### 📁 Structure des dossiers
-*   `/src` (ou racine)
-    *   `App.tsx` : Composant principal gérant l'état de navigation (Wizard) et l'orchestration des écrans.
-    *   `/components` : Composants UI réutilisables, notamment `icons.tsx` pour le système d'icônes SVG.
-    *   `/services` : Logique métier externe, principalement `geminiService.ts` pour les appels à l'IA.
-    *   `types.ts` : Centralisation de tous les types TypeScript (Interfaces, Enums, Aliases).
-    *   `firebase.ts` : Initialisation et configuration de la couche de données.
-
-### 🔄 Flux de Diagnostic (The Wizard)
-L'application fonctionne comme une machine à états gérée par la variable `step` dans `App.tsx`.
-1.  **LANDING** : Accueil et présentation.
-2.  **CATEGORY_SELECTION** : Choix de la famille de problème (Plomberie, Électricité, etc.).
-3.  **APPLIANCE_SELECTION** : Choix de l'équipement spécifique.
-4.  **APPLIANCE_DETAILS** : Saisie optionnelle de la marque/modèle et capture photo.
-5.  **DIAGNOSIS** : Dialogue itératif avec l'IA.
-6.  **RESULT** : Affichage de la solution ou proposition d'intervention.
+1.  **Clonage & Install** : `npm install`
+2.  **Configuration** : Créer un `.env.local` avec `GEMINI_API_KEY`.
+3.  **Lancement** : `npm run dev`
 
 ---
 
-## 🧠 Intégration de l'IA (Gemini)
-
-La logique de diagnostic réside dans `services/geminiService.ts`.
-
-*   **Format de réponse** : L'IA répond exclusivement en JSON pour permettre un rendu UI dynamique.
-    *   Type `question` : Pour demander des précisions.
-    *   Type `diagnosis` : Fournit une solution structurée (`solutionType`, `title`, `steps`, `summary`).
-*   **Multimodalité** : Le service supporte l'envoi de photos (base64) à l'IA pour améliorer la précision du diagnostic visuel.
-*   **Contrôle** : Utilisation de `systemInstruction` pour forcer l'IA à rester dans son rôle d'expert en maintenance.
-
----
-
-## 🏢 Espace Pro (Backoffice)
-
-BOB.AI inclut un tableau de bord complet pour les gestionnaires (Concierges) et les techniciens (Artisans).
-
-### Fonctions Concierge :
-*   Gestion des propriétés et des tickets d'incidents.
-*   Suivi des dossiers **AirCover** (dommages causés par les voyageurs).
-*   Validation des devis et gestion des factures.
-
-### Fonctions Artisan :
-*   Réception de "Leads" (opportunités de chantier) avec diagnostic IA pré-rempli.
-*   Envoi de devis chiffrés.
-*   Gestion du planning d'intervention et profil public (notes/avis).
-
----
-
-## 🛠️ Installation et Installation
-
-### Pré-requis
-*   Node.js (v18+)
-*   Clé API Google Gemini
-
-### Installation
-1.  `npm install`
-2.  Créez un fichier `.env.local` à la racine :
-    ```bash
-    GEMINI_API_KEY=votre_cle_api_ici
-    ```
-3.  Lancement en mode dev :
-    ```bash
-    npm run dev
-    ```
-
----
-
-## 📝 Types Clés (à consulter dans `types.ts`)
-
-*   `Ticket` : Objet central pour le suivi d'un incident.
-*   `AiResponse` : Union type (`question` | `diagnosis`) dictant le comportement du Wizard.
-*   `BackofficeRole` : Gère les permissions d'affichage (`CONCIERGE` vs `ARTISAN`).
-
----
-
-*Développé avec passion pour automatiser la maintenance immobilière.*
+*BOB.AI transforme chaque problème technique en une expérience fluide et documentée.*
